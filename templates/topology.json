@@ -1,0 +1,88 @@
+{
+    "clusters": [
+      {
+        "nodes": [
+          {
+            "node": {
+              "hostnames": {
+                "manage": [
+                  "earth"
+                ],
+                "storage": [
+                  "192.168.10.10"
+                ]
+              },
+              "zone": 1
+            },
+            "devices": [
+              "/dev/sdb"
+            ]
+          },
+          {
+            "node": {
+              "hostnames": {
+                "manage": [
+                  "jupiter"
+                ],
+                "storage": [
+                  "192.168.10.11"
+                ]
+              },
+              "zone": 1
+            },
+            "devices": [
+              "/dev/sdb"
+            ]
+          },
+          {
+            "node": {
+              "hostnames": {
+                "manage": [
+                  "mars"
+                ],
+                "storage": [
+                  "192.168.10.12"
+                ]
+              },
+              "zone": 1
+            },
+            "devices": [
+              "/dev/sdb"
+            ]
+          },
+          {
+            "node": {
+              "hostnames": {
+                "manage": [
+                  "mercury"
+                ],
+                "storage": [
+                  "192.168.10.13"
+                ]
+              },
+              "zone": 1
+            },
+            "devices": [
+              "/dev/sdb"
+            ]
+          },
+          {
+            "node": {
+              "hostnames": {
+                "manage": [
+                  "neptune"
+                ],
+                "storage": [
+                  "192.168.10.14"
+                ]
+              },
+              "zone": 1
+            },
+            "devices": [
+              "/dev/sdb"
+            ]
+          }
+        ]
+      }
+    ]
+  }

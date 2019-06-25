@@ -1,0 +1,110 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'spencer' user
+      user: name=spencer append=yes state=present createhome=yes shell=/bin/bash
+
+    - name: allow 'spencer' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'spencer ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the spencer user
+      authorized_key: user=spencer key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
+    - name: install remote apt deps
+      apt:
+        name: [
+          'apt-transport-https', 
+          'ca-certificates', 
+          'gnupg2', 
+          'software-properties-common',
+          'python-apt'
+        ]
+        state: present
+
+    - name: add Docker apt-key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: add Docker's APT repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/debian stretch stable
+        state: present
+        filename: 'docker'
+
+    - name: install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: true
+
+    - name: add Kubernetes apt-key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: add Kubernetes' APT repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: 'kubernetes'
+
+    - name: install kubelet
+      apt:
+        name: kubelet=1.15.0-00
+        state: present
+        update_cache: true
+
+    - name: install kubeadm
+      apt:
+        name: kubeadm=1.15.0-00
+        state: present
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+      
+    - name: Set docker default container runtime to systemd
+      copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            },
+            "storage-driver": "overlay2"
+          }
+      
+    - name: make docker service folder
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+    
+    - name: reload systemctl and restart docker
+      systemd:
+        state: restarted
+        daemon-reload: yes
+        name: docker
+    
+    - name: update all apt packages
+      apt:
+        update_cache: yes
+        upgrade: full
+    
+    - name: reboot system and wait for it to come back
+      reboot:

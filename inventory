@@ -1,0 +1,8 @@
+[master]
+earth.tuxhpc.net
+
+[worker]
+jupiter.tuxhpc.net
+mars.tuxhpc.net
+mercury.tuxhpc.net
+neptune.tuxhpc.net

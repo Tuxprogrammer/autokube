@@ -1,0 +1,73 @@
+- hosts: master
+  become: yes
+  tasks:
+    - name: install kubectl
+      apt:
+        name: kubectl=1.15.0-00
+        state: present
+        force: yes
+        
+    - name: initialize the cluster
+      command: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.10.10 --node-name earth 
+      ignore_errors: yes
+
+    - name: wait for kubernetes to start
+      wait_for:
+        port: 6443
+
+    - name: create kubeconfig folder
+      file:
+        state: directory
+        name: /home/spencer/.kube
+        mode: 0755
+        owner: spencer
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/spencer/.kube/config
+        remote_src: yes
+        owner: spencer
+
+    - name: install Pod network
+      shell: kubectl apply --kubeconfig /home/spencer/.kube/config -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+    - name: install Kubernetes Dashboard
+      shell: kubectl apply --kubeconfig /home/spencer/.kube/config -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+
+    - name: create kubernetes-dashboard admin account
+      copy:
+        dest: dashboard-admin.yaml
+        content: |
+          apiVersion: rbac.authorization.k8s.io/v1beta1
+          kind: ClusterRoleBinding
+          metadata:
+            name: kubernetes-dashboard
+            labels:
+              k8s-app: kubernetes-dashboard
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: ServiceAccount
+            name: kubernetes-dashboard
+            namespace: kube-system
+
+    - name: install Kubernetes Dashboard
+      shell: kubectl apply --kubeconfig /home/spencer/.kube/config -f dashboard-admin.yaml
+
+    - name: taint master node to allow running on master
+      shell: kubectl taint nodes --kubeconfig /home/spencer/.kube/config --all node-role.kubernetes.io/master-
+      ignore_errors: yes
+
+    - name: Generate join command
+      become: yes
+      command: kubeadm token create --print-join-command
+      register: join_command
+
+    - name: Copy join command to local file
+      become: yes
+      become_method: sudo
+      become_user: spencer
+      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"

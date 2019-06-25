@@ -1,0 +1,5 @@
+# Ignore putting up join-command
+join-command
+
+# Ignore vagrant folder
+.vagrant/
