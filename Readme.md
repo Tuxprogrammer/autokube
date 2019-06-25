@@ -15,13 +15,14 @@ It uses `generic/debian9` as the box for each system. The playbooks rely on a de
 
 # Usage:
 
-`vagrant plugin install vagrant-vmware-esxi`
-`vagrant up --provider=vmware_esxi`
-
-`ansible-playbook -i inventory gitlab-kubernetes.yml`
-
+```
+vagrant plugin install vagrant-vmware-esxi
+vagrant up --provider=vmware_esxi
+```
 ## Optional:
+```
 ansible-playbook -i inventory gitlab-kubernetes.yml
+```
 
 # Todo:
 
