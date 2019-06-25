@@ -51,12 +51,12 @@ Vagrant.configure("2") do |config|
         node_ip: "192.168.10.10",
       }
     end
-    # master.vm.provision "ansible" do |ansible|
-    #   ansible.playbook = "kube-master.yml"
-    #   ansible.extra_vars = {
-    #       node_ip: "192.168.10.10",
-    #   }
-    # end
+    master.vm.provision "ansible" do |ansible|
+      ansible.playbook = "kube-master.yml"
+      ansible.extra_vars = {
+          node_ip: "192.168.10.10",
+      }
+    end
   end
 
   (1..N).each do |i|
@@ -86,13 +86,13 @@ Vagrant.configure("2") do |config|
           node_ip: "192.168.10.#{i + 10}",
         }
       end
-      # node.vm.provision "ansible" do |ansible|
-      #   ansible.limit = "all"
-      #   ansible.playbook = "kube-worker.yml"
-      #   ansible.extra_vars = {
-      #     node_ip: "192.168.10.#{i + 10}",
-      #   }
-      # end
+      node.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "kube-worker.yml"
+        ansible.extra_vars = {
+          node_ip: "192.168.10.#{i + 10}",
+        }
+      end
     end
   end
 end
