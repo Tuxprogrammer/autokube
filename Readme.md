@@ -1,7 +1,7 @@
 # AutoKube
 ## Automated Kubernetes Deployment
 
-These set of scripts assist in provisioning a kubernetes cluster on bare-metal VMware ESXi host. The default ocnfiguration creates the following nodes:
+This set of scripts assist in provisioning a kubernetes cluster on bare-metal VMware ESXi host. The default ocnfiguration creates the following nodes:
 
 - Kubernetes Master:
   - `earth`
